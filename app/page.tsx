@@ -1,5 +1,4 @@
 import PlayingField from "@/components/PlayingField";
-
 import { createGame } from "@/lib/create-game";
 
 export default function Home() {
