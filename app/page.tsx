@@ -1,43 +1,20 @@
-// 26 width * 19 height
+import PlayingField from "@/components/PlayingField";
+
+import { createGame } from "@/lib/create-game";
 
 export default function Home() {
-  const fieldWidth = 26;
-  const fieldHeight = 19;
-  const numberOfMines = 99;
+  const rows = 19;
+  const columns = 26;
+  const mines = 99;
+  const game = createGame({ rows: rows, columns: columns, mines: mines });
+  console.log(game[0]);
 
-  return <main>Home</main>;
-}
-
-interface square {
-  name: string;
-  mined: boolean;
-  revealed: boolean;
-  marked: boolean;
-  neighbors: square[];
-}
-
-interface gameProps {
-  rows: number;
-  columns: number;
-  mines: number;
-}
-
-function createGame({ rows, columns, mines }: gameProps) {
-  // Create an array of arrays of rows that each contain as many square objects as there are columns
-  let game = [];
-  for (let rowNumber = 0; rowNumber < rows; rowNumber++) {
-    let row: square[] = [];
-    for (let columnNumber = 0; columnNumber < columns; columnNumber++) {
-      row.push({
-        name: String.fromCharCode(97 + rowNumber) + String(columnNumber),
-        mined: false,
-        revealed: false,
-        marked: false,
-        neighbors: [],
-      });
-    }
-    game.push(row);
-  }
-
-  console.log(game);
+  return (
+    <main>
+      <h1 className="text-4xl text-center">Minesweeper</h1>
+      <section>
+        <PlayingField game={game} />
+      </section>
+    </main>
+  );
 }
