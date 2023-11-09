@@ -1,5 +1,14 @@
 import Square from "@/components/Square";
 
+interface square {
+  name: string;
+  mined: boolean;
+  revealed: boolean;
+  marked: boolean;
+  neighbors: string[];
+  neighboringMines: string[];
+}
+
 interface PlayingFieldProps {
   game: square[][];
 }
@@ -20,7 +29,7 @@ const PlayingField = ({ game }: PlayingFieldProps) => {
                   marked={square.marked}
                   revealed={square.revealed}
                   neighbors={square.neighbors}
-                  neighboringMines={1}
+                  neighboringMines={square.neighboringMines}
                 />
               ))}
             </div>

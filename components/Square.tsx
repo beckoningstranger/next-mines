@@ -9,10 +9,17 @@ interface SquareProps {
   marked: boolean;
   mined: boolean;
   neighbors: string[];
-  neighboringMines: number;
+  neighboringMines: string[];
 }
 
-const Square = ({ name, revealed, marked, mined, neighbors }: SquareProps) => {
+const Square = ({
+  name,
+  revealed,
+  marked,
+  mined,
+  neighbors,
+  neighboringMines,
+}: SquareProps) => {
   console.log(`[Square ${name} rendering]...`);
 
   const [clicked, setClicked] = useState(revealed);
@@ -30,13 +37,14 @@ const Square = ({ name, revealed, marked, mined, neighbors }: SquareProps) => {
     console.log("RightClick");
   };
 
-  const styles = "w-8 h-8 border border-black flex justify-center items-center";
+  const styles =
+    "w-10 h-10 border border-black flex justify-center items-center";
   return (
     <div id={name} onClick={handleLeftClick} onContextMenu={handleRightClick}>
       {mined && clicked ? (
         <GiJasmine className={styles} />
       ) : (
-        <div className={styles}>{clicked && neighbors.length}</div>
+        <div className={styles}>{clicked && neighboringMines.length}</div>
       )}
     </div>
   );

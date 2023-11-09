@@ -4,6 +4,7 @@ interface square {
   revealed: boolean;
   marked: boolean;
   neighbors: string[];
+  neighboringMines: string[];
 }
 
 interface gameProps {
@@ -29,12 +30,16 @@ export function createGame({ rows, columns, mines }: gameProps): square[][] {
           rows,
           columns
         ),
+        neighboringMines: [],
       });
     }
     game.push(row);
   }
   // Mark specified amount of squares as mined
   layMines(game, mines);
+
+  // For each square, see how many mines are in its neighboring squares
+  findNeighboringMines(game);
   return game;
 }
 
@@ -83,4 +88,24 @@ function layMines(game: square[][], mines: number): void {
       mines--;
     }
   }
+}
+
+function findNeighboringMines(game: square[][]): void {
+  const minedSquares: string[] = [];
+  game.map((row) => {
+    row.map((square) => {
+      if (square.mined) {
+        minedSquares.push(square.name);
+      }
+    });
+  });
+  game.map((row) => {
+    row.map((square) => {
+      square.neighbors.map((neighbor) => {
+        if (minedSquares.includes(neighbor)) {
+          square.neighboringMines.push(neighbor);
+        }
+      });
+    });
+  });
 }
