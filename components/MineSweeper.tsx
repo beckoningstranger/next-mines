@@ -1,22 +1,16 @@
+import { createGame } from "@/lib/create-game";
 import Square from "@/components/Square";
 
-interface square {
-  name: string;
-  mined: boolean;
-  revealed: boolean;
-  marked: boolean;
-  neighbors: string[];
-  neighboringMines: string[];
-}
+const rows = 19;
+const columns = 26;
+const mines = 99;
+const game = createGame({ rows: rows, columns: columns, mines: mines });
+console.log(game[0]);
 
-interface PlayingFieldProps {
-  game: square[][];
-}
-
-const PlayingField = ({ game }: PlayingFieldProps) => {
+const PlayingField = () => {
   console.log(`[PlayingField rendering]...`);
   return (
-    <div className="flex flex-col w-100 bg-amber-200 p-2 m-12">
+    <div className="flex flex-col w-100 bg-amber-200 p-2 m-12 select-none">
       <div id="playing-field">
         {game.map((row, index) => {
           return (
