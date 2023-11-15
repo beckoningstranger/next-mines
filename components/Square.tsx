@@ -18,27 +18,23 @@ export default function Square({
   marked,
   mined,
   neighboringMines,
+  dispatch,
 }: SquareProps) {
-  console.log(`[Square ${name} rendering]...`);
-
-  const [clicked, setClicked] = useState(revealed);
-  const [flagged, setFlagged] = useState(marked);
+  //   console.log(`[Square ${name} rendering]...`);
 
   const handleLeftClick = (e: MouseEvent) => {
-    if (!flagged && !clicked) {
-      console.log("LeftClick");
-      if (mined) {
-        console.log("Boom!!");
-      }
-      setClicked(true);
+    if (!marked && !revealed) {
+      dispatch({ type: "REVEAL", payload: name });
+    }
+    if (!marked && revealed) {
+      dispatch({ type: "CHORD", payload: name });
     }
   };
 
   const handleRightClick = (e: MouseEvent): void => {
     e.preventDefault();
-    if (!clicked) {
-      console.log("RightClick");
-      setFlagged(!flagged);
+    if (!revealed) {
+      dispatch({ type: "MARK", payload: name });
     }
   };
 
@@ -48,11 +44,11 @@ export default function Square({
       id={name}
       onClick={handleLeftClick}
       onContextMenu={handleRightClick}
-      className="w-10 h-10 border border-black flex justify-center items-center hover:bg-amber-100"
+      className="w-20 h-20 border border-black flex justify-center items-center hover:bg-amber-100"
     >
-      {mined && clicked && <GiJasmine className={iconStyles} />}
-      {!mined && clicked && neighboringMines.length}
-      {flagged && <GiLandMine className={iconStyles} />}
+      {mined && revealed && <GiJasmine className={iconStyles} />}
+      {!mined && revealed && neighboringMines.length}
+      {marked && !revealed && <GiLandMine className={iconStyles} />}
     </div>
   );
 }

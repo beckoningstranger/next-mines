@@ -35,7 +35,6 @@ interface gameState {
 enum ActionKind {
   Reveal = "REVEAL",
   Mark = "MARK",
-  UnMark = "UNMARK",
   Chord = "CHORD",
 }
 
@@ -60,13 +59,77 @@ function Minesweeper() {
     mines: mines,
   });
 
-  console.log(initialState);
-
   const reducer = (state: gameState, action: Action): gameState => {
     const { type, payload } = action;
+    const square = state.gameData.filter((x) => x.name === payload)[0];
 
     switch (type) {
       case ActionKind.Reveal:
+        if (square.mined === true) {
+          console.log("BOOM, you lose!");
+        } else {
+          square.revealed = true;
+          if (square.neighboringMines.length === 0) {
+            square.neighbors.map((neighborSquareName) => {
+              const neighborSquare = state.gameData.filter(
+                (x) => x.name === neighborSquareName
+              )[0];
+              neighborSquare.revealed = true;
+            });
+          }
+        }
+
+        return {
+          ...state,
+        };
+
+      case ActionKind.Mark:
+        square.marked = !square.marked;
+        if (square.marked) {
+          square.neighbors.map((x) => {
+            const squareToUpdate = state.gameData.filter(
+              (sq) => sq.name === x
+            )[0];
+            squareToUpdate.markedNeighbors.push(square.name);
+          });
+        } else {
+          square.neighbors.map((x) => {
+            const squareToUpdate = state.gameData.filter(
+              (sq) => sq.name === x
+            )[0];
+            squareToUpdate.markedNeighbors.splice(
+              squareToUpdate.markedNeighbors.indexOf(square.name),
+              1
+            );
+          });
+        }
+
+        return {
+          ...state,
+        };
+
+      case ActionKind.Chord:
+        console.log("Chording square", payload);
+        if (square.markedNeighbors.length === square.neighboringMines.length) {
+          console.log("Chording is possible");
+          square.neighbors.map((neighborSquareName) => {
+            const neighborSquare = state.gameData.filter(
+              (x) => x.name === neighborSquareName
+            )[0];
+            if (!neighborSquare.marked) {
+              neighborSquare.revealed = true;
+            }
+          });
+        } else {
+          console.log(
+            "Chording is NOT possible",
+            square.markedNeighbors.length,
+            square.markedNeighbors,
+            "!==",
+            square.neighboringMines.length
+          );
+        }
+
         return {
           ...state,
         };
@@ -79,15 +142,15 @@ function Minesweeper() {
 
   const revealSquareAction: Action = { type: ActionKind.Reveal };
   const markSquareAction: Action = { type: ActionKind.Mark };
-  const unmarkSquareAction: Action = { type: ActionKind.UnMark };
   const ChordAction: Action = { type: ActionKind.Chord };
 
-  console.log(`[Minesweeper rendering]...`);
+  // console.log(`[Minesweeper rendering]...`);
 
+  // const styles = `grid grid-cols-${columns} bg-red-200 select-none justify-items-center m-5 p-6`;
+  const styles =
+    "grid grid-cols-7 bg-red-200 select-none justify-items-center m-5 p-6";
   return (
-    <div
-      className={`grid grid-cols-${columns} bg-red-200 select-none justify-items-center m-5`}
-    >
+    <div className={styles}>
       {state.gameData.map((square) => (
         <Square
           key={square.name}
