@@ -8,8 +8,8 @@ interface SquareProps {
   revealed: boolean;
   marked: boolean;
   mined: boolean;
-  neighbors: string[];
   neighboringMines: string[];
+  dispatch: Function;
 }
 
 export default function Square({
@@ -17,7 +17,6 @@ export default function Square({
   revealed,
   marked,
   mined,
-  neighbors,
   neighboringMines,
 }: SquareProps) {
   console.log(`[Square ${name} rendering]...`);

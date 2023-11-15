@@ -5,6 +5,7 @@ interface square {
   marked: boolean;
   neighbors: string[];
   neighboringMines: string[];
+  markedNeighbors: string[];
 }
 
 interface gameProps {
@@ -31,6 +32,7 @@ export function createGame({ rows, columns, mines }: gameProps): square[][] {
           columns
         ),
         neighboringMines: [],
+        markedNeighbors: [],
       });
     }
     game.push(row);
