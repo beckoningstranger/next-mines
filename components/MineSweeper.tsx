@@ -64,6 +64,16 @@ function Minesweeper() {
     const { type, payload } = action;
     const square = state.gameData.filter((x) => x.name === payload)[0];
 
+    function gameLost(): void {
+      state.metaData.won = false;
+      console.log("BOOM, you lose!");
+    }
+
+    function gameWon(): void {
+      state.metaData.won = true;
+      console.log("You win!");
+    }
+
     function checkOffSquare(solvedSquare: string): void {
       // Remove a square from the squares that need to be revealed
       if (state.metaData.revealToWin.includes(solvedSquare)) {
@@ -75,18 +85,14 @@ function Minesweeper() {
 
       // Check for a win
       if (state.metaData.revealToWin.length === 0) {
-        // TO DO: TRIGGER WIN HERE
-        console.log("You win!");
-        state.metaData.won = true;
+        gameWon();
       }
     }
 
     switch (type) {
       case ActionKind.Reveal:
         if (square.mined === true) {
-          console.log("BOOM, you lose!");
-          // TO DO: TRIGGER LOSS HERE
-          state.metaData.won = false;
+          gameLost();
           return {
             ...state,
           };
@@ -104,13 +110,6 @@ function Minesweeper() {
               checkOffSquare(neighborSquare.name);
             });
           }
-        }
-
-        // Check for a win
-        if (state.metaData.revealToWin.length === 0) {
-          // TO DO: TRIGGER WIN HERE
-          console.log("You win!");
-          state.metaData.won = true;
         }
 
         return {
@@ -155,9 +154,7 @@ function Minesweeper() {
             if (!neighborSquare.marked && !neighborSquare.revealed) {
               neighborSquare.revealed = true;
               if (neighborSquare.mined) {
-                console.log("BOOM, you lose!");
-                state.metaData.won = false;
-                // TO DO: Proper losing behavior
+                gameLost();
               }
               checkOffSquare(neighborSquare.name);
             }
@@ -179,8 +176,8 @@ function Minesweeper() {
   const ChordAction: Action = { type: ActionKind.Chord };
 
   // const styles = `grid grid-cols-${columns} bg-red-200 select-none justify-items-center m-5 p-6`;
-  const styles =
-    "grid grid-cols-12 gap-2 bg-red-200 select-none justify-items-center m-5 p-6";
+  const styles = `grid grid-cols-12 bg-red-200 select-none justify-items-center m-5 p-6`;
+
   return (
     <div className={styles}>
       {state.gameData.map((square) => (
