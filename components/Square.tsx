@@ -45,7 +45,7 @@ export default function Square({
       id={name}
       onClick={handleLeftClick}
       onContextMenu={handleRightClick}
-      className="w-20 h-20 border border-black flex justify-center items-center hover:bg-amber-100 text-4xl"
+      className={`w-20 h-20 border border-black flex justify-center items-center hover:bg-amber-100 text-4xl `}
     >
       {mined && revealed && <GiJasmine className={iconStyles} />}
       {!mined && revealed && neighboringMines.length}

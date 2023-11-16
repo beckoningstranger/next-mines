@@ -51,9 +51,9 @@ interface gameProps {
 }
 
 function Minesweeper() {
-  const rows = 12;
-  const columns = 12;
-  const mines = 30;
+  const rows = 19;
+  const columns = 26;
+  const mines = 99;
   const initialState: gameState = createGame({
     rows: rows,
     columns: columns,
@@ -92,6 +92,7 @@ function Minesweeper() {
     switch (type) {
       case ActionKind.Reveal:
         if (square.mined === true) {
+          square.revealed = true;
           gameLost();
           return {
             ...state,
@@ -122,7 +123,9 @@ function Minesweeper() {
           const squareToUpdate = state.gameData.filter(
             (sq) => sq.name === x
           )[0];
-          squareToUpdate.markedNeighbors.push(square.name);
+          if (!squareToUpdate.markedNeighbors.includes(square.name)) {
+            squareToUpdate.markedNeighbors.push(square.name);
+          }
         });
 
         return {
@@ -135,10 +138,12 @@ function Minesweeper() {
           const squareToUpdate = state.gameData.filter(
             (sq) => sq.name === x
           )[0];
-          squareToUpdate.markedNeighbors.splice(
-            squareToUpdate.markedNeighbors.indexOf(square.name),
-            1
-          );
+          if (squareToUpdate.markedNeighbors.includes(square.name)) {
+            squareToUpdate.markedNeighbors.splice(
+              squareToUpdate.markedNeighbors.indexOf(square.name),
+              1
+            );
+          }
         });
 
         return {
@@ -175,22 +180,37 @@ function Minesweeper() {
   const markSquareAction: Action = { type: ActionKind.Mark };
   const ChordAction: Action = { type: ActionKind.Chord };
 
-  // const styles = `grid grid-cols-${columns} bg-red-200 select-none justify-items-center m-5 p-6`;
-  const styles = `grid grid-cols-12 bg-red-200 select-none justify-items-center m-5 p-6`;
+  const renderedGame = [];
+  for (let row = 0; state.metaData.rows > row; row++) {
+    renderedGame.push(
+      state.gameData.slice(
+        state.metaData.columns * row,
+        state.metaData.columns * row + state.metaData.columns
+      )
+    );
+  }
 
   return (
-    <div className={styles}>
-      {state.gameData.map((square) => (
-        <Square
-          key={square.name}
-          name={square.name}
-          revealed={square.revealed}
-          marked={square.marked}
-          neighboringMines={square.neighboringMines}
-          mined={square.mined}
-          dispatch={dispatch}
-        />
-      ))}
+    <div className="flex flex-col bg-red-200 select-none items-center justify-center m-5 p-6 gap-2">
+      {renderedGame.map((row, index) => {
+        return (
+          <div key={index} className="flex gap-2">
+            {row.map((square) => {
+              return (
+                <Square
+                  key={square.name}
+                  name={square.name}
+                  revealed={square.revealed}
+                  marked={square.marked}
+                  neighboringMines={square.neighboringMines}
+                  mined={square.mined}
+                  dispatch={dispatch}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }
