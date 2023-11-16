@@ -20,8 +20,6 @@ export default function Square({
   neighboringMines,
   dispatch,
 }: SquareProps) {
-  //   console.log(`[Square ${name} rendering]...`);
-
   const handleLeftClick = (e: MouseEvent) => {
     if (!marked && !revealed) {
       dispatch({ type: "REVEAL", payload: name });
@@ -33,8 +31,11 @@ export default function Square({
 
   const handleRightClick = (e: MouseEvent): void => {
     e.preventDefault();
-    if (!revealed) {
+    if (!revealed && !marked) {
       dispatch({ type: "MARK", payload: name });
+    }
+    if (!revealed && marked) {
+      dispatch({ type: "UNMARK", payload: name });
     }
   };
 
@@ -44,7 +45,7 @@ export default function Square({
       id={name}
       onClick={handleLeftClick}
       onContextMenu={handleRightClick}
-      className="w-20 h-20 border border-black flex justify-center items-center hover:bg-amber-100"
+      className="w-20 h-20 border border-black flex justify-center items-center hover:bg-amber-100 text-4xl"
     >
       {mined && revealed && <GiJasmine className={iconStyles} />}
       {!mined && revealed && neighboringMines.length}

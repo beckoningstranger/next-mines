@@ -35,6 +35,7 @@ interface gameState {
 enum ActionKind {
   Reveal = "REVEAL",
   Mark = "MARK",
+  Unmark = "UNMARK",
   Chord = "CHORD",
 }
 
@@ -50,9 +51,9 @@ interface gameProps {
 }
 
 function Minesweeper() {
-  const rows = 4;
-  const columns = 7;
-  const mines = 5;
+  const rows = 12;
+  const columns = 12;
+  const mines = 30;
   const initialState: gameState = createGame({
     rows: rows,
     columns: columns,
@@ -63,20 +64,46 @@ function Minesweeper() {
     const { type, payload } = action;
     const square = state.gameData.filter((x) => x.name === payload)[0];
 
+    function checkOffSquare(solvedSquare: string): void {
+      // Remove a square from the squares that need to be revealed
+      if (state.metaData.revealToWin.includes(solvedSquare)) {
+        state.metaData.revealToWin.splice(
+          state.metaData.revealToWin.indexOf(solvedSquare),
+          1
+        );
+      }
+    }
+
     switch (type) {
       case ActionKind.Reveal:
         if (square.mined === true) {
           console.log("BOOM, you lose!");
+          // TO DO: TRIGGER LOSS HERE
+          state.metaData.won = false;
+          return {
+            ...state,
+          };
         } else {
           square.revealed = true;
+          checkOffSquare(square.name);
+          // If square does not have any neighboring mines, reveal all surrounding squares
           if (square.neighboringMines.length === 0) {
             square.neighbors.map((neighborSquareName) => {
               const neighborSquare = state.gameData.filter(
                 (x) => x.name === neighborSquareName
               )[0];
               neighborSquare.revealed = true;
+              // Remove that neighboring square from the squares that need to be revealed
+              checkOffSquare(neighborSquare.name);
             });
           }
+        }
+
+        // Check for a win
+        if (state.metaData.revealToWin.length === 0) {
+          // TO DO: TRIGGER WIN HERE
+          console.log("You win!");
+          state.metaData.won = true;
         }
 
         return {
@@ -84,50 +111,53 @@ function Minesweeper() {
         };
 
       case ActionKind.Mark:
-        square.marked = !square.marked;
-        if (square.marked) {
-          square.neighbors.map((x) => {
-            const squareToUpdate = state.gameData.filter(
-              (sq) => sq.name === x
-            )[0];
-            squareToUpdate.markedNeighbors.push(square.name);
-          });
-        } else {
-          square.neighbors.map((x) => {
-            const squareToUpdate = state.gameData.filter(
-              (sq) => sq.name === x
-            )[0];
-            squareToUpdate.markedNeighbors.splice(
-              squareToUpdate.markedNeighbors.indexOf(square.name),
-              1
-            );
-          });
-        }
+        square.marked = true;
+        square.neighbors.map((x) => {
+          const squareToUpdate = state.gameData.filter(
+            (sq) => sq.name === x
+          )[0];
+          squareToUpdate.markedNeighbors.push(square.name);
+        });
+
+        return {
+          ...state,
+        };
+
+      case ActionKind.Unmark:
+        square.marked = false;
+        square.neighbors.map((x) => {
+          const squareToUpdate = state.gameData.filter(
+            (sq) => sq.name === x
+          )[0];
+          squareToUpdate.markedNeighbors.splice(
+            squareToUpdate.markedNeighbors.indexOf(square.name),
+            1
+          );
+        });
 
         return {
           ...state,
         };
 
       case ActionKind.Chord:
-        console.log("Chording square", payload);
         if (square.markedNeighbors.length === square.neighboringMines.length) {
-          console.log("Chording is possible");
+          console.log("Chording square", square.name);
           square.neighbors.map((neighborSquareName) => {
             const neighborSquare = state.gameData.filter(
               (x) => x.name === neighborSquareName
             )[0];
-            if (!neighborSquare.marked) {
+            if (!neighborSquare.marked && !neighborSquare.revealed) {
               neighborSquare.revealed = true;
+              checkOffSquare(neighborSquare.name);
             }
           });
-        } else {
-          console.log(
-            "Chording is NOT possible",
-            square.markedNeighbors.length,
-            square.markedNeighbors,
-            "!==",
-            square.neighboringMines.length
-          );
+        }
+
+        // Check for a win
+        if (state.metaData.revealToWin.length === 0) {
+          // TO DO: TRIGGER WIN HERE
+          console.log("You win!");
+          state.metaData.won = true;
         }
 
         return {
@@ -144,11 +174,9 @@ function Minesweeper() {
   const markSquareAction: Action = { type: ActionKind.Mark };
   const ChordAction: Action = { type: ActionKind.Chord };
 
-  // console.log(`[Minesweeper rendering]...`);
-
   // const styles = `grid grid-cols-${columns} bg-red-200 select-none justify-items-center m-5 p-6`;
   const styles =
-    "grid grid-cols-7 bg-red-200 select-none justify-items-center m-5 p-6";
+    "grid grid-cols-12 gap-2 bg-red-200 select-none justify-items-center m-5 p-6";
   return (
     <div className={styles}>
       {state.gameData.map((square) => (
@@ -207,8 +235,11 @@ function createGame({ rows, columns, mines }: gameProps): gameState {
   // Mark specified amount of squares as mined
   layMines(game);
 
-  // For each square, see how many mines are in its neighboring squares
+  // For each square, see how many mines there are in its neighboring squares
   findNeighboringMines(game);
+
+  // Find the square the players has to reveal to win
+  findUnminedSquares(game);
 
   return game;
 }
@@ -273,6 +304,14 @@ function findNeighboringMines(game: gameState): void {
         square.neighboringMines.push(neighbor);
       }
     });
+  });
+}
+
+function findUnminedSquares(game: gameState): void {
+  game.gameData.map((square) => {
+    if (!square.mined) {
+      game.metaData.revealToWin.push(square.name);
+    }
   });
 }
 
