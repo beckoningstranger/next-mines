@@ -72,6 +72,13 @@ function Minesweeper() {
           1
         );
       }
+
+      // Check for a win
+      if (state.metaData.revealToWin.length === 0) {
+        // TO DO: TRIGGER WIN HERE
+        console.log("You win!");
+        state.metaData.won = true;
+      }
     }
 
     switch (type) {
@@ -141,23 +148,20 @@ function Minesweeper() {
 
       case ActionKind.Chord:
         if (square.markedNeighbors.length === square.neighboringMines.length) {
-          console.log("Chording square", square.name);
           square.neighbors.map((neighborSquareName) => {
             const neighborSquare = state.gameData.filter(
               (x) => x.name === neighborSquareName
             )[0];
             if (!neighborSquare.marked && !neighborSquare.revealed) {
               neighborSquare.revealed = true;
+              if (neighborSquare.mined) {
+                console.log("BOOM, you lose!");
+                state.metaData.won = false;
+                // TO DO: Proper losing behavior
+              }
               checkOffSquare(neighborSquare.name);
             }
           });
-        }
-
-        // Check for a win
-        if (state.metaData.revealToWin.length === 0) {
-          // TO DO: TRIGGER WIN HERE
-          console.log("You win!");
-          state.metaData.won = true;
         }
 
         return {
