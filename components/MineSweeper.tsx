@@ -191,10 +191,10 @@ function Minesweeper() {
   }
 
   return (
-    <div className="flex flex-col bg-red-200 select-none items-center justify-center m-5 p-6 gap-2">
+    <div className="lg:py-8 flex flex-col justify-center items-center bg-slate-900 select-none h-full">
       {renderedGame.map((row, index) => {
         return (
-          <div key={index} className="flex gap-2">
+          <div key={index} className="flex">
             {row.map((square) => {
               return (
                 <Square
