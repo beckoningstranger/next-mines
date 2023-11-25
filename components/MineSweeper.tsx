@@ -17,8 +17,8 @@ interface meta {
   rows: number;
   columns: number;
   mines: number;
-  createdAt?: Date;
-  finishedAt?: Date | null;
+  createdAt: Date | null;
+  finishedAt: Date | null;
   playerID?: number;
   playerActions: string[];
   won: boolean;
@@ -51,16 +51,29 @@ interface gameProps {
 }
 
 const reducer = (state: gameState, action: Action): gameState => {
+  if (!state.metaData.inProgress)
+    return {
+      ...state,
+    };
+  if (state.metaData.createdAt === null) {
+    state.metaData.createdAt = new Date();
+  }
   const { type, payload } = action;
   const square = state.gameData.filter((x) => x.name === payload)[0];
 
+  function endGame(result: boolean): void {
+    state.metaData.inProgress = false;
+    state.metaData.finishedAt = new Date();
+    state.metaData.won = result;
+  }
+
   function gameLost(): void {
-    state.metaData.won = false;
+    endGame(false);
     console.log('BOOM, you lose!');
   }
 
   function gameWon(): void {
-    state.metaData.won = true;
+    endGame(true);
     console.log('You win!');
   }
 
@@ -258,7 +271,7 @@ function createGame({ rows, columns, mines }: gameProps): gameState {
       playerID: 0,
       playerActions: [],
       completionTime: null,
-      createdAt: new Date(),
+      createdAt: null,
       finishedAt: null,
       won: false,
       inProgress: true,
