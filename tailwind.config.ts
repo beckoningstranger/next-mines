@@ -7,7 +7,11 @@ const config: Config = {
     "./app/components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        "spin-slow": "spin 10s linear infinite",
+      },
+    },
   },
   plugins: [],
 };

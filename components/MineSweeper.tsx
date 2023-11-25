@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useReducer } from 'react';
-import Square from './Square';
+import { useReducer } from "react";
+import Square from "./Square";
 
 interface square {
   name: string;
@@ -33,10 +33,10 @@ interface gameState {
 }
 
 enum ActionKind {
-  Reveal = 'REVEAL',
-  Mark = 'MARK',
-  Unmark = 'UNMARK',
-  Chord = 'CHORD',
+  Reveal = "REVEAL",
+  Mark = "MARK",
+  Unmark = "UNMARK",
+  Chord = "CHORD",
 }
 
 type Action = {
@@ -61,20 +61,20 @@ const reducer = (state: gameState, action: Action): gameState => {
   const { type, payload } = action;
   const square = state.gameData.filter((x) => x.name === payload)[0];
 
-  function endGame(result: boolean): void {
+  function endGame(won: boolean): void {
     state.metaData.inProgress = false;
     state.metaData.finishedAt = new Date();
-    state.metaData.won = result;
+    state.metaData.won = won;
   }
 
   function gameLost(): void {
     endGame(false);
-    console.log('BOOM, you lose!');
+    console.log("BOOM, you lose!");
   }
 
   function gameWon(): void {
     endGame(true);
-    console.log('You win!');
+    console.log("You win!");
   }
 
   function checkOffSquare(solvedSquare: string): void {
@@ -166,6 +166,7 @@ const reducer = (state: gameState, action: Action): gameState => {
     case ActionKind.Mark:
       square.marked = true;
       square.neighbors.map((x) => {
+        // Update the record for each neighboring square as to how many neighboring squares have been flagged
         const squareToUpdate = state.gameData.filter((sq) => sq.name === x)[0];
         if (!squareToUpdate.markedNeighbors.includes(square.name)) {
           squareToUpdate.markedNeighbors.push(square.name);
@@ -179,6 +180,7 @@ const reducer = (state: gameState, action: Action): gameState => {
     case ActionKind.Unmark:
       square.marked = false;
       square.neighbors.map((x) => {
+        // Update the record for each neighboring square as to how many neighboring squares have been flagged
         const squareToUpdate = state.gameData.filter((sq) => sq.name === x)[0];
         if (squareToUpdate.markedNeighbors.includes(square.name)) {
           squareToUpdate.markedNeighbors.splice(
@@ -194,6 +196,7 @@ const reducer = (state: gameState, action: Action): gameState => {
 
     case ActionKind.Chord:
       if (square.markedNeighbors.length === square.neighboringMines.length) {
+        // If the player has marked as many neighboring square as there are mines neighboring the square, trigger chording
         square.neighbors.map((neighborSquareName) => {
           const neighborSquare = state.gameData.filter(
             (x) => x.name === neighborSquareName,
@@ -208,7 +211,7 @@ const reducer = (state: gameState, action: Action): gameState => {
         ...state,
       };
     default:
-      throw new Error('Unknown action type!');
+      throw new Error("Unknown action type!");
   }
 };
 
@@ -235,6 +238,13 @@ function Minesweeper({ rows, columns, mines }: gameProps) {
     );
   }
 
+  function getGameResult(): string {
+    if (state.metaData.inProgress) return "inProgress";
+    if (state.metaData.won) return "win";
+    if (!state.metaData.won) return "loss";
+    return "";
+  }
+
   return (
     <div className="flex h-full select-none flex-col items-center justify-center bg-slate-900 lg:py-8">
       {renderedGame.map((row, index) => {
@@ -250,6 +260,7 @@ function Minesweeper({ rows, columns, mines }: gameProps) {
                   neighboringMines={square.neighboringMines}
                   mined={square.mined}
                   dispatch={dispatch}
+                  gameresult={getGameResult()}
                 />
               );
             })}
@@ -317,14 +328,14 @@ function findNeighbors(
   maxColumn: number,
 ): string[] {
   const maxRowLetter: string = String.fromCharCode(
-    'a'.charCodeAt(0) + maxRow - 1,
+    "a".charCodeAt(0) + maxRow - 1,
   );
   const neighborLetters: string[] = [];
   neighborLetters.push(square.letter);
   if (square.letter !== maxRowLetter) {
     neighborLetters.push(String.fromCharCode(square.letter.charCodeAt(0) + 1));
   }
-  if (square.letter !== 'a') {
+  if (square.letter !== "a") {
     neighborLetters.push(String.fromCharCode(square.letter.charCodeAt(0) - 1));
   }
   const neighbors: string[] = [];
